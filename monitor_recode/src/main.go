@@ -1,28 +1,20 @@
 package main
 
-import "github.com/360EntSecGroup-Skylar/excelize"
+import "fmt"
 
 func main() {
-	f := excelize.NewFile()
-	// 创建一个工作表
-	index := f.NewSheet("Sheet2")
-	// 设置单元格的值
-	f.SetCellValue("Sheet2", "A2", "Hello world.aaaaaaaaaaaaaaaaaaaa")
-	f.SetCellValue("Sheet1", "B2", 100)
-	// 设置工作簿的默认工作表
-	f.SetActiveSheet(index)
-	// 根据指定路径保存文件
-	if err := f.SaveAs("Book1.xlsx"); err != nil {
-		println(err.Error())
-		// aaa
+	excelFileName := "test.xlsx"
+	xlFile, err := xlsx.OpenFile(excelFileName)
+	if err != nil {
+		fmt.Printf("open failed: %s\n", err)
 	}
-	fff := excelize.NewFile()
-	fff.NewSheet("aaaaaaaaaaaaaaaaaaaa")
-	ccc := excelize.NewFile()
-	ccc.NewSheet("asdf")
-}
-
-// aaa ...
-func aaa() {
-
+	for _, sheet := range xlFile.Sheets {
+		fmt.Printf("Sheet Name: %s\n", sheet.Name)
+		for _, row := range sheet.Rows {
+			for _, cell := range row.Cells {
+				text := cell.String()
+				fmt.Printf("%s\n", text)
+			}
+		}
+	}
 }

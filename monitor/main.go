@@ -20,5 +20,6 @@ func main() {
 		println(err.Error())
 	}
 	fmt.Printf("%s\n", "good")
+	fmt.Println("aaa", "bbb")
 
 }

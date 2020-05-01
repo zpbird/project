@@ -1,5 +1,5 @@
-module monitor_recode
+module monitor
 
 go 1.14
 
-require github.com/360EntSecGroup-Skylar/excelize v1.4.1 // indirect
+require github.com/360EntSecGroup-Skylar/excelize v1.4.1

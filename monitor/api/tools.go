@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 	"sort"
 
 	"github.com/Chain-Zhang/pinyin"
@@ -74,4 +75,12 @@ func SubPathList(path string) []string {
 	// fmt.Println(dirSlice)
 	return dirSlice
 
+}
+
+// Clear 清屏...
+func Clear() {
+	// fmt.Printf("\x1bc") //清屏
+	cmd := exec.Command("cmd.exe", "/c", "cls") //windows清屏命令
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }

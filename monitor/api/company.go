@@ -4,7 +4,7 @@ package api
 import (
 	"fmt"
 	"os"
-	"os/exec"
+	"strconv"
 )
 
 // 定义模板文件常量
@@ -26,13 +26,13 @@ func GetCompany(templateDir string) string {
 
 	// 选择公司
 	for getNum < 1 || getNum > len(dirList) {
-		// fmt.Printf("\x1bc") //清屏
-		cmd := exec.Command("cmd.exe", "/c", "cls") //windows清屏命令
-		cmd.Stdout = os.Stdout
-		cmd.Run()
 
+		// 清屏
+		Clear()
+
+		// 获取并显示公司列表
 		fmt.Printf("\n\n")
-		fmt.Println("请选择公司(输入对应数字)")
+		fmt.Println("请选择公司(输入对应数字后回车)")
 		fmt.Printf("\n")
 		for key, value := range dirList {
 			fmt.Printf(" %d. %s\n", key+1, value)
@@ -40,7 +40,15 @@ func GetCompany(templateDir string) string {
 		fmt.Printf("\n")
 		fmt.Print("[1 - ", len(dirList), "] : ")
 
-		fmt.Scanln(&getNum)
+		// 验证输入的字符串为数字形式(一定程度上)
+		var getStr string
+		fmt.Scanln(&getStr)
+		if i, err := strconv.ParseInt(getStr, 0, 64); err != nil {
+			fmt.Println("输入时发生错误！")
+			// os.Exit(0)
+		} else {
+			getNum = int(i)
+		}
 	}
 
 	// 检查选中公司对应的模板文件是否存在

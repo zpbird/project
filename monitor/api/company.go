@@ -45,7 +45,7 @@ func GetCompany(templateDir string) string {
 		fmt.Scanln(&getStr)
 		if i, err := strconv.ParseInt(getStr, 0, 64); err != nil {
 			fmt.Println("输入时发生错误！")
-			// os.Exit(0)
+			getNum = 0
 		} else {
 			getNum = int(i)
 		}

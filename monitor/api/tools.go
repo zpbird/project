@@ -84,3 +84,8 @@ func Clear() {
 	cmd.Stdout = os.Stdout
 	cmd.Run()
 }
+
+// GetMonDays 获取月份天数...
+func GetMonDays() {
+
+}

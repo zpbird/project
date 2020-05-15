@@ -9,8 +9,8 @@ import (
 
 // 定义模板文件常量
 const (
-	sumTemplate   = "汇总.xlsx"
-	videoTemplate = "录像明细.xlsx"
+	sumTemplate   = "汇总模板.xlsx"
+	videoTemplate = "录像明细模板.xlsx"
 )
 
 // GetCompany 需要传入模板文件夹的路径，返回选中的公司名称...

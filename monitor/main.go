@@ -34,12 +34,10 @@ reInput: // 标签:重新输入
 		}
 
 		zinput.Clear()
-
 		tTermStr := "公司：" + selCompany + "     " + "年月份：" + strconv.Itoa(selYear) + "年" + monSection + "月份\n\n" + "y：确认  " + "n：重新选择\n\n" + "请输入选择[y 或 n]："
-		n := zinput.Input(tTermStr, zinput.RegYn)
-		if n == "y" {
+		if zinput.Input(tTermStr, zinput.RegYn) == "y" {
 			acceptSel = false
-		} else if n == "n" {
+		} else {
 			goto reInput
 		}
 

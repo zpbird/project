@@ -35,19 +35,27 @@ func GetCompany(templateDir string) string {
 	}
 
 	// 选择公司
-	for getNum < 1 || getNum > len(dirList) {
+
+	for trigger := true; trigger; {
 		zinput.Clear()
 		// 获取并显示公司列表
-		fmt.Println("请选择公司(输入对应数字后回车)")
-		fmt.Printf("\n")
+		tTermStr := "选择公司\n\n"
 		for key, value := range dirList {
-			fmt.Printf(" %d. %s\n", key+1, value)
+			if key+1 < 10 {
+				tTermStr += " " + strconv.Itoa(key+1) + ". " + value + "\n"
+			} else {
+				tTermStr += strconv.Itoa(key+1) + ". " + value + "\n"
+			}
 		}
-		fmt.Printf("\n")
-
-		getStr := zinput.Input("公司序号"+"[1 - "+strconv.Itoa(len(dirList))+"] : ", zinput.RegNum)
+		tTermStr += "\n公司序号" + "[1 - " + strconv.Itoa(len(dirList)) + "] : "
+		getStr := zinput.Input(tTermStr, zinput.RegNum)
 		getNum, _ = strconv.Atoi(getStr)
+		trigger = false
 
+		if getNum < 1 || getNum > len(dirList) {
+			zinput.StopContinue()
+			trigger = true
+		}
 	}
 
 	// 检查选中公司对应的模板文件是否存在

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"github.com/zpbird/zp-go-mod/zdirfiles"
 )
 
 // CheckAppDir 检查程序基本目录情况...
@@ -24,7 +26,7 @@ func CheckAppDir() string {
 
 	// 模板目录
 	templateDir := pwd + sysSep + "template"
-	if ex, err := PathExists(templateDir); !ex || err != nil {
+	if ex, err := zdirfiles.DirFileExist(templateDir, "dir"); !ex || err != nil {
 		fmt.Println("模板文件夹：template 不存在！")
 		os.Exit(0)
 	}

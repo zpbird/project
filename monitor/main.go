@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"monitor/api"
 	"strconv"
+
+	"github.com/zpbird/zp-go-mod/zinput"
 	// "github.com/360EntSecGroup-Skylar/excelize/v2"
 )
 
@@ -31,23 +33,16 @@ reInput: // 标签:重新输入
 			monSection = strconv.Itoa(selSmon) + "-" + strconv.Itoa(selEmon)
 		}
 
-		api.Clear()
-		fmt.Printf("\n\n")
-		fmt.Printf("公司：%s     ", selCompany)
-		fmt.Printf("年月份：%d年%s月份\n\n", selYear, monSection)
-		fmt.Printf("1：确认  ")
-		fmt.Printf("2：重新选择\n\n")
-		fmt.Printf("请输入选择[1 或 2]：")
+		zinput.Clear()
 
-		var getStr string
-		fmt.Scanln(&getStr)
-		if i, err := strconv.ParseInt(getStr, 0, 64); err != nil {
-			fmt.Println("输入时发生错误！")
-		} else if int(i) == 1 {
+		tTermStr := "公司：" + selCompany + "     " + "年月份：" + strconv.Itoa(selYear) + "年" + monSection + "月份\n\n" + "y：确认  " + "n：重新选择\n\n" + "请输入选择[y 或 n]："
+		n := zinput.Input(tTermStr, zinput.RegYn)
+		if n == "y" {
 			acceptSel = false
-		} else if int(i) == 2 {
+		} else if n == "n" {
 			goto reInput
 		}
+
 	}
 
 	fmt.Println(selCompany, selYear, selSmon, selEmon)

@@ -8,6 +8,7 @@ import (
 
 	"github.com/zpbird/zp-go-mod/zdirfiles"
 	"github.com/zpbird/zp-go-mod/zinput"
+	"github.com/zpbird/zp-go-mod/ztimes"
 	// "github.com/360EntSecGroup-Skylar/excelize/v2"
 )
 
@@ -88,17 +89,27 @@ reInput: // 标签:重新输入
 		os.Exit(0)
 	}
 
+	// 创建月份目录
 	for s, e := selSmon, selEmon; s <= e; s++ {
-		if b, err := zdirfiles.MakeDir(targetDataDir + sysSep + strconv.Itoa(selYear) + sysSep + strconv.Itoa(s)); !b {
+		if b, err := zdirfiles.MakeDir(targetDataDir + sysSep + strconv.Itoa(selYear) + sysSep + fmt.Sprintf("%02d", s)); !b {
 			fmt.Println(err)
 			os.Exit(0)
 		}
-		if b, err := zdirfiles.MakeDir(targetVideoDataDir + sysSep + strconv.Itoa(selYear) + sysSep + strconv.Itoa(s)); !b {
+		if b, err := zdirfiles.MakeDir(targetVideoDataDir + sysSep + strconv.Itoa(selYear) + sysSep + fmt.Sprintf("%02d", s)); !b {
 			fmt.Println(err)
 			os.Exit(0)
 		}
 	}
 
 	// 拷贝录像明细文件
+	targetVideoDataFileName := ""
+	dayNum := 0
+	for s, e := selSmon, selEmon; s <= e; s++ {
+		dayNum = ztimes.GetMonDays(selYear, s)
+		for i := 1; i <= dayNum; i++ {
+			targetVideoDataFileName = targetVideoDataDir + sysSep + strconv.Itoa(selYear) + sysSep + fmt.Sprintf("%02d", s) + sysSep + strconv.Itoa(selYear) + "-" + fmt.Sprintf("%02d", s) + "-" + fmt.Sprintf("%02d", i) + ".xlsx"
+			zdirfiles.CopyFile(templateDir+sysSep+selCompany+sysSep+"录像明细模板.xlsx", targetVideoDataFileName, false)
+		}
+	}
 
 }

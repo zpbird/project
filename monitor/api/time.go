@@ -28,7 +28,7 @@ func GetTime() (year int, sMon int, eMon int) {
 		trigger = false
 		if eMon < sMon {
 			zinput.Clear()
-			fmt.Printf("\"结束月份\"必须大于或等于\"开始月份\"，目前输入的值为：\"开始月份\"[%d] \"结束月份\"[%d]", sMon, eMon)
+			fmt.Printf("\"结束月份\"必须大于或等于\"开始月份\"，目前输入的值为：\"开始月份\"[%d] \"结束月份\"[%d]\n", sMon, eMon)
 			zinput.StopContinue()
 			trigger = true
 		}

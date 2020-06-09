@@ -6,7 +6,6 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/360EntSecGroup-Skylar/excelize/v2"
 	"github.com/zpbird/zp-go-mod/zdirfiles"
 	"github.com/zpbird/zp-go-mod/zinput"
 	"github.com/zpbird/zp-go-mod/ztimes"
@@ -119,17 +118,11 @@ reInput: // 标签:重新输入
 	// 	_, e := zdirfiles.CopyFile(templateDir+sysSep+selCompany+sysSep+"汇总模板.xlsx", targetSumFileName, false)
 	// 	fmt.Println(e)
 	// }
-	sumExecl, err := excelize.OpenFile(templateDir + sysSep + selCompany + sysSep + "汇总模板.xlsx")
-	if err != nil {
-		println(err.Error())
-		return
-	}
-	// 获取工作表中指定单元格的值
-	cell, err := sumExecl.GetCellValue("汇总", "A1")
-	if err != nil {
-		println(err.Error())
-		return
-	}
-	println(cell)
+
+	// sumExecl, err := excelize.OpenFile(templateDir + sysSep + selCompany + sysSep + "汇总模板.xlsx")
+	// if err != nil {
+	// 	println(err.Error())
+	// 	return
+	// }
 
 }

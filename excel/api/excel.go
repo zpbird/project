@@ -16,6 +16,7 @@ var sysSep = string(os.PathSeparator)
 type SumExcel struct {
 	SheetList []struct {
 		SheetName       string
+		Header          string
 		Title           map[string]string
 		ContentVariable map[string]string
 		ContentFixed    map[string]string
@@ -28,20 +29,21 @@ func NewSumExcel() *SumExcel {
 	return &SumExcel{
 		SheetList: make([]struct {
 			SheetName       string
+			Header          string
 			Title           map[string]string
 			ContentVariable map[string]string
 			ContentFixed    map[string]string
 			Footer          map[string]string
-		}, 0),
+		}, 3), // 是否应该默认为0，或指定个数
 	}
 }
 
-// SxSumExcel 世鑫汇总文件模板...
-func SxSumExcel(dataDir, videoDataDir string, year, mon int) (sx *SumExcel) {
+// SxSumExceltmp 世鑫汇总文件模板...
+func SxSumExceltmp(dataDir, videoDataDir string, year, mon int) (sx *SumExcel) {
 	sx = NewSumExcel()
-
 	// Sheet[0]：汇总
 	sx.SheetList[0].SheetName = "汇总"
+	sx.SheetList[0].Header = "世鑫录像与地泵数据比对" + strconv.Itoa(year) + "年" + fmt.Sprintf("%02d", mon) + "月"
 	sx.SheetList[0].Title = map[string]string{
 		"日期":   "A1",
 		"地泵数据": "B1",
@@ -76,22 +78,21 @@ func SxSumExcel(dataDir, videoDataDir string, year, mon int) (sx *SumExcel) {
 }
 
 // MakeSumExcel ...
-func MakeSumExcel(templateFile, targetFile string) error {
+// selCompany, dataDir, videoDataDir string, year, mon int
+func MakeSumExcel() (sumExcelFile *excelize.File, err error) {
 	ztimes.GetMonDays(2020, 2)
-	sumExcel, err := excelize.OpenFile(templateFile)
+	sxTmp := SxSumExceltmp("aaa", "bbb", 2019, 5)
+	sumExcelFile = excelize.NewFile()
+	// 设置页眉
+	err = sumExcelFile.SetHeaderFooter("Sheet1", &excelize.FormatHeaderFooter{
+		DifferentFirst: true,
+		// FirstHeader:    `&CCenter &"-,Bold"Bold&"-,Regular"HeaderU+000A&D`,
+		FirstHeader: `&C` + sxTmp.SheetList[0].Header,
+	})
 	if err != nil {
-		println(err.Error())
-		return err
+		return
 	}
-	// 获取工作表中指定单元格的值
-
-	cell, err := sumExcel.GetCellValue("汇总", "A1")
-	if err != nil {
-		println(err.Error())
-		return err
-	}
-	println(cell)
-	err = sumExcel.Save()
-	return err
+	err = sumExcelFile.SaveAs("./files/ttt.xlsx")
+	return
 
 }

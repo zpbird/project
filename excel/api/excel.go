@@ -61,8 +61,8 @@ func SxSumExceltmp(dataDir, videoDataDir string, year, mon int) (sx *SumExcel) {
 		"录像明细": "=HYPERLINK(\"" + videoDataDir + sysSep + strconv.Itoa(year) + sysSep + fmt.Sprintf("%02d", mon) + sysSep + "[" + sx.SheetList[0].ContentVariable["contentVar"] + ".xlsx\",\"" + sx.SheetList[0].ContentVariable["contentVar"] + "\")",
 	}
 	sx.SheetList[0].ContentVariable = map[string]string{
-		"counter":    "", // 应该必须最先赋值
-		"contentVar": strconv.Itoa(year) + "-" + fmt.Sprintf("%02d", mon) + "-" + sx.SheetList[0].ContentVariable["counter"],
+		"dayIndex":   "", // 应该必须最先赋值
+		"contentVar": strconv.Itoa(year) + "-" + fmt.Sprintf("%02d", mon) + "-" + sx.SheetList[0].ContentVariable["dayIndex"],
 	}
 	sx.SheetList[0].Footer = map[string]string{
 		"日期":   "汇总",
@@ -86,8 +86,7 @@ func MakeSumExcel() (sumExcelFile *excelize.File, err error) {
 	// 设置页眉
 	err = sumExcelFile.SetHeaderFooter("Sheet1", &excelize.FormatHeaderFooter{
 		DifferentFirst: true,
-		// FirstHeader:    `&CCenter &"-,Bold"Bold&"-,Regular"HeaderU+000A&D`,
-		FirstHeader: `&C` + sxTmp.SheetList[0].Header,
+		FirstHeader:    `&C` + `&B` + `&16` + `&"微软雅黑,常规"` + sxTmp.SheetList[0].Header,
 	})
 	if err != nil {
 		return

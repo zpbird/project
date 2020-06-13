@@ -4,6 +4,6 @@ import "excel/api"
 
 // main ...
 func main() {
-	api.MakeSumExcel()
+	api.SxMakeSumExcelFile(2019, 7)
 
 }

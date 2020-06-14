@@ -21,7 +21,9 @@ type SumExcelTmp struct {
 		ContentVariable map[string]string
 		ContentFixed    map[string]string
 		Footer          map[string]string
+		StyleSub        map[string]interface{}
 	}
+	Style map[string]interface{}
 }
 
 // NewSumExcelTmp ...
@@ -34,7 +36,10 @@ func NewSumExcelTmp() *SumExcelTmp {
 			ContentVariable map[string]string
 			ContentFixed    map[string]string
 			Footer          map[string]string
+			StyleSub        map[string]interface{}
 		}, 3), // 是否应该默认为0，或指定个数
+
+		Style: make(map[string]interface{}),
 	}
 }
 
@@ -74,63 +79,103 @@ func SxSumExcelTmp(year, mon int) (sx *SumExcelTmp) {
 
 	// Sheet[2]：地泵汇总
 
+	// 全局样式
+	sx.Style = map[string]interface{}{
+		"defaultFont": "微软雅黑",
+		"title": &excelize.Style{
+			Font: &excelize.Font{
+				Color: "000000", Bold: true, Size: 12, Family: "Microsoft YaHei"},
+			Alignment: &excelize.Alignment{Vertical: "center", Horizontal: "center"},
+			Border: []excelize.Border{
+				{Type: "top", Style: 1, Color: "000000"},
+				{Type: "bottom", Style: 1, Color: "000000"},
+				{Type: "left", Style: 1, Color: "000000"},
+				{Type: "right", Style: 1, Color: "000000"}},
+		},
+		"contentAlignCenter": &excelize.Style{
+			Alignment: &excelize.Alignment{Vertical: "center", Horizontal: "center"},
+			Border: []excelize.Border{
+				{Type: "top", Style: 1, Color: "000000"},
+				{Type: "bottom", Style: 1, Color: "000000"},
+				{Type: "left", Style: 1, Color: "000000"},
+				{Type: "right", Style: 1, Color: "000000"}}},
+		"content": &excelize.Style{
+			Border: []excelize.Border{
+				{Type: "top", Style: 1, Color: "000000"},
+				{Type: "bottom", Style: 1, Color: "000000"},
+				{Type: "left", Style: 1, Color: "000000"},
+				{Type: "right", Style: 1, Color: "000000"}}},
+	}
 	return
 }
 
 // SxMakeSumExcelFile ...
-func SxMakeSumExcelFile(year, mon int) (SxSumExcelFile *excelize.File, err error) {
+func SxMakeSumExcelFile(year, mon int) (sxSumExcelFile *excelize.File, err error) {
 	ztimes.GetMonDays(year, mon)
-	SxTmp := SxSumExcelTmp(year, mon)
-	SxSumExcelFile = excelize.NewFile()
+	sxTmp := SxSumExcelTmp(year, mon)
+	sxSumExcelFile = excelize.NewFile()
 
-	// 新建汇总Sheet
-	indexHz := SxSumExcelFile.NewSheet("汇总")
-	SxSumExcelFile.SetActiveSheet(indexHz)
-	SxSumExcelFile.DeleteSheet("Sheet1") // 删除默认Sheet1
-	// 设置汇总Sheet 页眉
-	err = SxSumExcelFile.SetHeaderFooter("汇总", &excelize.FormatHeaderFooter{
+	// 设置工作簿默认字体
+	sxSumExcelFile.SetDefaultFont(sxTmp.Style["defaultFont"].(string))
+
+	// 新建"汇总Sheet"
+	indexHz := sxSumExcelFile.NewSheet("汇总")
+	sxSumExcelFile.SetActiveSheet(indexHz)
+	sxSumExcelFile.DeleteSheet("Sheet1") // 删除默认Sheet1
+	// 设置"汇总Sheet"页眉
+	err = sxSumExcelFile.SetHeaderFooter("汇总", &excelize.FormatHeaderFooter{
 		DifferentFirst: true,
-		FirstHeader:    `&C` + `&B` + `&16` + `&"微软雅黑,常规"` + SxTmp.SheetList[0].Header,
+		FirstHeader:    `&C` + `&B` + `&16` + `&"微软雅黑,常规"` + sxTmp.SheetList[0].Header,
 	})
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
-	// 设置汇总Sheet 标题行
-	for key, value := range SxTmp.SheetList[0].Title {
-		if err = SxSumExcelFile.SetCellValue(SxTmp.SheetList[0].SheetName, value[0]+value[1], key); err != nil {
+	// 设置"汇总Sheet"标题行
+
+	for key, value := range sxTmp.SheetList[0].Title {
+		if err = sxSumExcelFile.SetCellValue(sxTmp.SheetList[0].SheetName, value[0]+value[1], key); err != nil {
 			fmt.Println(err)
 			return
+		} else {
+			var style int
+			style, err = sxSumExcelFile.NewStyle(sxTmp.Style["title"])
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[0].SheetName, value[0]+value[1], value[0]+value[1], style)
+
 		}
 
 		switch key {
 		case "日期":
-			if err = SxSumExcelFile.SetColWidth(SxTmp.SheetList[0].SheetName, value[0], value[0], 20); err != nil {
+			if err = sxSumExcelFile.SetColWidth(sxTmp.SheetList[0].SheetName, value[0], value[0], 16); err != nil {
 				fmt.Println(err)
 				return
 			}
 		case "地泵数据":
-			if err = SxSumExcelFile.SetColWidth(SxTmp.SheetList[0].SheetName, value[0], value[0], 50); err != nil {
+			if err = sxSumExcelFile.SetColWidth(sxTmp.SheetList[0].SheetName, value[0], value[0], 40); err != nil {
 				fmt.Println(err)
 				return
 			}
 		case "录像数据":
-			if err = SxSumExcelFile.SetColWidth(SxTmp.SheetList[0].SheetName, value[0], value[0], 80); err != nil {
+			if err = sxSumExcelFile.SetColWidth(sxTmp.SheetList[0].SheetName, value[0], value[0], 48); err != nil {
 				fmt.Println(err)
 				return
 			}
 		case "比对结果":
-			if err = SxSumExcelFile.SetColWidth(SxTmp.SheetList[0].SheetName, value[0], value[0], 50); err != nil {
+			if err = sxSumExcelFile.SetColWidth(sxTmp.SheetList[0].SheetName, value[0], value[0], 36); err != nil {
 				fmt.Println(err)
 				return
 			}
 		case "地泵明细":
-			if err = SxSumExcelFile.SetColWidth(SxTmp.SheetList[0].SheetName, value[0], value[0], 20); err != nil {
+			if err = sxSumExcelFile.SetColWidth(sxTmp.SheetList[0].SheetName, value[0], value[0], 16); err != nil {
 				fmt.Println(err)
 				return
 			}
 		case "录像明细":
-			if err = SxSumExcelFile.SetColWidth(SxTmp.SheetList[0].SheetName, value[0], value[0], 20); err != nil {
+			if err = sxSumExcelFile.SetColWidth(sxTmp.SheetList[0].SheetName, value[0], value[0], 16); err != nil {
 				fmt.Println(err)
 				return
 			}
@@ -139,7 +184,7 @@ func SxMakeSumExcelFile(year, mon int) (SxSumExcelFile *excelize.File, err error
 	}
 
 	// 保存文件
-	err = SxSumExcelFile.SaveAs("./files/ttt.xlsx")
+	err = sxSumExcelFile.SaveAs("./files/ttt.xlsx")
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -1,9 +1,9 @@
 package main
 
-import "excel/api"
+import "excel/api/exceltemplate"
 
 // main ...
 func main() {
-	api.SxMakeSumExcelFile(2019, 7)
+	exceltemplate.SxMakeSumExcelFile(2019, 7)
 
 }

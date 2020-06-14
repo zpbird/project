@@ -1,47 +1,11 @@
-// Package api import "monitor/api" or "excel/api"
-package api
+package exceltemplate
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
-	"github.com/zpbird/zp-go-mod/ztimes"
 )
-
-var sysSep = string(os.PathSeparator)
-
-// SumExcelTmp 汇总表结构体
-type SumExcelTmp struct {
-	SheetList []struct {
-		SheetName       string
-		Header          string
-		Title           map[string][2]string
-		ContentVariable map[string]string
-		ContentFixed    map[string]string
-		Footer          map[string]string
-		StyleSub        map[string]interface{}
-	}
-	Style map[string]interface{}
-}
-
-// NewSumExcelTmp ...
-func NewSumExcelTmp() *SumExcelTmp {
-	return &SumExcelTmp{
-		SheetList: make([]struct {
-			SheetName       string
-			Header          string
-			Title           map[string][2]string
-			ContentVariable map[string]string
-			ContentFixed    map[string]string
-			Footer          map[string]string
-			StyleSub        map[string]interface{}
-		}, 3), // 是否应该默认为0，或指定个数
-
-		Style: make(map[string]interface{}),
-	}
-}
 
 // SxSumExcelTmp 世鑫汇总文件模板...
 func SxSumExcelTmp(year, mon int) (sx *SumExcelTmp) {
@@ -79,49 +43,24 @@ func SxSumExcelTmp(year, mon int) (sx *SumExcelTmp) {
 
 	// Sheet[2]：地泵汇总
 
-	// 全局样式
-	sx.Style = map[string]interface{}{
-		"defaultFont": "微软雅黑",
-		"title": &excelize.Style{
-			Font: &excelize.Font{
-				Color: "000000", Bold: true, Size: 12, Family: "Microsoft YaHei"},
-			Alignment: &excelize.Alignment{Vertical: "center", Horizontal: "center"},
-			Border: []excelize.Border{
-				{Type: "top", Style: 1, Color: "000000"},
-				{Type: "bottom", Style: 1, Color: "000000"},
-				{Type: "left", Style: 1, Color: "000000"},
-				{Type: "right", Style: 1, Color: "000000"}},
-		},
-		"contentAlignCenter": &excelize.Style{
-			Alignment: &excelize.Alignment{Vertical: "center", Horizontal: "center"},
-			Border: []excelize.Border{
-				{Type: "top", Style: 1, Color: "000000"},
-				{Type: "bottom", Style: 1, Color: "000000"},
-				{Type: "left", Style: 1, Color: "000000"},
-				{Type: "right", Style: 1, Color: "000000"}}},
-		"content": &excelize.Style{
-			Border: []excelize.Border{
-				{Type: "top", Style: 1, Color: "000000"},
-				{Type: "bottom", Style: 1, Color: "000000"},
-				{Type: "left", Style: 1, Color: "000000"},
-				{Type: "right", Style: 1, Color: "000000"}}},
-	}
 	return
 }
 
 // SxMakeSumExcelFile ...
 func SxMakeSumExcelFile(year, mon int) (sxSumExcelFile *excelize.File, err error) {
-	ztimes.GetMonDays(year, mon)
+	var style int
+	// monDays := ztimes.GetMonDays(year, mon)
 	sxTmp := SxSumExcelTmp(year, mon)
 	sxSumExcelFile = excelize.NewFile()
 
 	// 设置工作簿默认字体
-	sxSumExcelFile.SetDefaultFont(sxTmp.Style["defaultFont"].(string))
+	sxSumExcelFile.SetDefaultFont(styleDefaultFont)
 
 	// 新建"汇总Sheet"
 	indexHz := sxSumExcelFile.NewSheet("汇总")
 	sxSumExcelFile.SetActiveSheet(indexHz)
 	sxSumExcelFile.DeleteSheet("Sheet1") // 删除默认Sheet1
+
 	// 设置"汇总Sheet"页眉
 	err = sxSumExcelFile.SetHeaderFooter("汇总", &excelize.FormatHeaderFooter{
 		DifferentFirst: true,
@@ -131,15 +70,14 @@ func SxMakeSumExcelFile(year, mon int) (sxSumExcelFile *excelize.File, err error
 		fmt.Println(err)
 		return
 	}
-	// 设置"汇总Sheet"标题行
 
+	// 设置"汇总Sheet"标题行
 	for key, value := range sxTmp.SheetList[0].Title {
 		if err = sxSumExcelFile.SetCellValue(sxTmp.SheetList[0].SheetName, value[0]+value[1], key); err != nil {
 			fmt.Println(err)
 			return
 		} else {
-			var style int
-			style, err = sxSumExcelFile.NewStyle(sxTmp.Style["title"])
+			style, err = sxSumExcelFile.NewStyle(styleTitle)
 			if err != nil {
 				fmt.Println(err)
 				return

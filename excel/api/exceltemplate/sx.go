@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/360EntSecGroup-Skylar/excelize/v2"
+	"github.com/zpbird/zp-go-mod/ztimes"
 )
 
 // SxSumExcelTmp 世鑫汇总文件模板...
@@ -21,18 +22,20 @@ func SxSumExcelTmp(year, mon int) (sx *SumExcelTmp) {
 		"地泵明细": {"E", "1"},
 		"录像明细": {"F", "1"},
 	}
+	sx.SheetList[0].ContentVariable = map[string]string{
+		"contentVarInit": strconv.Itoa(year) + "-" + fmt.Sprintf("%02d", mon) + "-",
+		"contentVar":     "",
+	}
+
 	sx.SheetList[0].ContentFixed = map[string]string{
 		"日期":   sx.SheetList[0].ContentVariable["contentVar"],
-		"地泵数据": "='.." + sysSep + "data" + sysSep + strconv.Itoa(year) + sysSep + fmt.Sprintf("%02d", mon) + sysSep + "[" + sx.SheetList[0].ContentVariable["contentVar"] + ".xlsx]称重记录'!$C$3",
+		"地泵数据": "='.." + sysSep + "data" + sysSep + strconv.Itoa(year) + sysSep + fmt.Sprintf("%02d", mon) + sysSep + "[" + sx.SheetList[0].ContentVariable["contentVar"] + ".xls]称重记录'!$C$3",
 		"录像数据": "='.." + sysSep + "video_data" + sysSep + strconv.Itoa(year) + sysSep + fmt.Sprintf("%02d", mon) + sysSep + "[" + sx.SheetList[0].ContentVariable["contentVar"] + ".xlsx]data'!$E$11",
 		"比对结果": "",
 		"地泵明细": "=HYPERLINK(\"" + ".." + sysSep + "data" + sysSep + strconv.Itoa(year) + sysSep + fmt.Sprintf("%02d", mon) + sysSep + sx.SheetList[0].ContentVariable["contentVar"] + ".xlsx\",\"" + sx.SheetList[0].ContentVariable["contentVar"] + "\")",
 		"录像明细": "=HYPERLINK(\"" + ".." + sysSep + "video_data" + sysSep + strconv.Itoa(year) + sysSep + fmt.Sprintf("%02d", mon) + sysSep + "[" + sx.SheetList[0].ContentVariable["contentVar"] + ".xlsx\",\"" + sx.SheetList[0].ContentVariable["contentVar"] + "\")",
 	}
-	sx.SheetList[0].ContentVariable = map[string]string{
-		"dayIndex":   "", // 应该必须最先赋值
-		"contentVar": strconv.Itoa(year) + "-" + fmt.Sprintf("%02d", mon) + "-" + sx.SheetList[0].ContentVariable["dayIndex"],
-	}
+
 	sx.SheetList[0].Footer = map[string]string{
 		"日期":   "汇总",
 		"地泵数据": "=\"总车数：\"&tmp!B34&\"  水渣：\"&tmp!C34&\"  矿粉：\"&tmp!D34&\"  其他：\"&tmp!E34",
@@ -49,7 +52,6 @@ func SxSumExcelTmp(year, mon int) (sx *SumExcelTmp) {
 // SxMakeSumExcelFile ...
 func SxMakeSumExcelFile(year, mon int) (sxSumExcelFile *excelize.File, err error) {
 	var style int
-	// monDays := ztimes.GetMonDays(year, mon)
 	sxTmp := SxSumExcelTmp(year, mon)
 	sxSumExcelFile = excelize.NewFile()
 
@@ -121,12 +123,41 @@ func SxMakeSumExcelFile(year, mon int) (sxSumExcelFile *excelize.File, err error
 
 	}
 
-	// 保存文件
-	err = sxSumExcelFile.SaveAs("./files/ttt.xlsx")
-	if err != nil {
-		fmt.Println(err)
-		return
+	// 设置"汇总Sheet"内容行
+	monDays := ztimes.GetMonDays(year, mon)
+	for i := 1; i <= monDays; i++ {
+		sxTmp.SheetList[0].ContentVariable["contentVar"] = sxTmp.SheetList[0].ContentVariable["contentVarInit"] + fmt.Sprintf("%02d", i)
+
+		// 日期列
+		sxTmp.SheetList[0].ContentFixed["日期"] = sxTmp.SheetList[0].ContentVariable["contentVar"]
+		if err = sxSumExcelFile.SetCellValue(sxTmp.SheetList[0].SheetName, sxTmp.SheetList[0].Title["日期"][0]+fmt.Sprintf("%d", i+1), sxTmp.SheetList[0].ContentFixed["日期"]); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[0].SheetName, sxTmp.SheetList[0].Title["日期"][0]+fmt.Sprintf("%d", i+1), sxTmp.SheetList[0].Title["日期"][0]+fmt.Sprintf("%d", i+1), style)
+		}
+
+		// 地泵数据列
+		sxTmp.SheetList[0].ContentFixed["地泵数据"] = "='.." + sysSep + "data" + sysSep + strconv.Itoa(year) + sysSep + fmt.Sprintf("%02d", mon) + sysSep + "[" + sxTmp.SheetList[0].ContentVariable["contentVar"] + ".xls]称重记录'!$C$3"
+		if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[0].SheetName, sxTmp.SheetList[0].Title["地泵数据"][0]+fmt.Sprintf("%d", i+1), sxTmp.SheetList[0].ContentFixed["地泵数据"]); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			style, err = sxSumExcelFile.NewStyle(styleContent)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[0].SheetName, sxTmp.SheetList[0].Title["地泵数据"][0]+fmt.Sprintf("%d", i+1), sxTmp.SheetList[0].Title["地泵数据"][0]+fmt.Sprintf("%d", i+1), style)
+		}
+
 	}
+
 	return
 
 }

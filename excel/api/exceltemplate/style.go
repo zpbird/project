@@ -20,6 +20,12 @@ var (
 		Alignment: styleAlignCenter,
 		Border:    sytleBorderAll,
 	}
+	styleTitle2 = &excelize.Style{
+		Font: &excelize.Font{
+			Color: "000000", Family: "Microsoft YaHei"},
+		Alignment: styleAlignCenter,
+		Border:    sytleBorderAll,
+	}
 	styleContentAlignCenter = &excelize.Style{
 		Alignment: styleAlignCenter,
 		Border:    sytleBorderAll,

@@ -14,7 +14,7 @@ func SxSumExcelTmp(year, mon int) (sx *SumExcelTmp) {
 	// Sheet[0]：汇总
 	sx.SheetList[0].SheetName = "汇总"
 	sx.SheetList[0].Header = "世鑫录像与地泵数据比对" + strconv.Itoa(year) + "年" + fmt.Sprintf("%02d", mon) + "月"
-	sx.SheetList[0].Title = map[string][2]string{
+	sx.SheetList[0].Title = map[string][]string{
 		"日期":   {"A", "1"},
 		"地泵数据": {"B", "1"},
 		"录像数据": {"C", "1"},
@@ -45,19 +45,19 @@ func SxSumExcelTmp(year, mon int) (sx *SumExcelTmp) {
 	// Sheet[1]：tmp
 	sx.SheetList[1].SheetName = "tmp"
 	sx.SheetList[1].Header = "世鑫录像与地泵数据比对" + strconv.Itoa(year) + "年" + fmt.Sprintf("%02d", mon) + "月"
-	sx.SheetList[1].Title = map[string][2]string{
+	sx.SheetList[1].Title = map[string][]string{
 		"地泵数据":  {"A1", "E1"},
 		"录像数据":  {"G1", "K1"},
-		"日期":    {"日期", "A2"},
-		"地泵总车数": {"总车数", "B2"},
-		"地泵水渣":  {"水渣", "C2"},
-		"地泵矿粉":  {"矿粉", "D2"},
-		"地泵其他":  {"其他", "E2"},
-		"录像总车数": {"总车数", "G2"},
-		"录像水渣":  {"水渣", "H2"},
-		"录像矿粉":  {"矿粉", "I2"},
-		"录像其他":  {"其他", "J2"},
-		"录像异常":  {"异常", "K2"},
+		"日期":    {"日期", "A", "2"},
+		"地泵总车数": {"总车数", "B", "2"},
+		"地泵水渣":  {"水渣", "C", "2"},
+		"地泵矿粉":  {"矿粉", "D", "2"},
+		"地泵其他":  {"其他", "E", "2"},
+		"录像总车数": {"总车数", "G", "2"},
+		"录像水渣":  {"水渣", "H", "2"},
+		"录像矿粉":  {"矿粉", "I", "2"},
+		"录像其他":  {"其他", "J", "2"},
+		"录像异常":  {"异常", "K", "2"},
 	}
 	sx.SheetList[1].ContentVariable = map[string]string{
 		"dayInit": strconv.Itoa(year) + "-" + fmt.Sprintf("%02d", mon) + "-",
@@ -266,8 +266,8 @@ func SxMakeSumExcelFile(year, mon int) (sxSumExcelFile *excelize.File, err error
 	}
 
 	// 设置汇总Sheet 汇总行
-	sxTmp.SheetList[0].Footer["地泵数据"] = "=\"总车数：\"&tmp!B" + fmt.Sprintf("%d", monDays+2) + "&\"  水渣：\"&tmp!C" + fmt.Sprintf("%d", monDays+2) + "&\"  矿粉：\"&tmp!D" + fmt.Sprintf("%d", monDays+2) + "&\"  其他：\"&tmp!E" + fmt.Sprintf("%d", monDays+2)
-	sxTmp.SheetList[0].Footer["录像数据"] = "=\"总车数：\"&tmp!G" + fmt.Sprintf("%d", monDays+2) + "&\"  水渣：\"&tmp!H" + fmt.Sprintf("%d", monDays+2) + "&\"  矿粉：\"&tmp!I" + fmt.Sprintf("%d", monDays+2) + "&\"  其他：\"&tmp!J" + fmt.Sprintf("%d", monDays+2) + "&\"  异常：\"&tmp!K" + fmt.Sprintf("%d", monDays+2)
+	sxTmp.SheetList[0].Footer["地泵数据"] = "=\"总车数：\"&tmp!B" + fmt.Sprintf("%d", monDays+3) + "&\"  水渣：\"&tmp!C" + fmt.Sprintf("%d", monDays+3) + "&\"  矿粉：\"&tmp!D" + fmt.Sprintf("%d", monDays+3) + "&\"  其他：\"&tmp!E" + fmt.Sprintf("%d", monDays+3)
+	sxTmp.SheetList[0].Footer["录像数据"] = "=\"总车数：\"&tmp!G" + fmt.Sprintf("%d", monDays+3) + "&\"  水渣：\"&tmp!H" + fmt.Sprintf("%d", monDays+3) + "&\"  矿粉：\"&tmp!I" + fmt.Sprintf("%d", monDays+3) + "&\"  其他：\"&tmp!J" + fmt.Sprintf("%d", monDays+3) + "&\"  异常：\"&tmp!K" + fmt.Sprintf("%d", monDays+3)
 	for key, value := range sxTmp.SheetList[0].Footer {
 		switch key {
 		case "日期":
@@ -336,7 +336,7 @@ func SxMakeSumExcelFile(year, mon int) (sxSumExcelFile *excelize.File, err error
 	}
 
 	// 设置"tmpSheet"标题行
-	// 设置一级标题
+	// 设置"tmpSheet"一级标题
 	if err = sxSumExcelFile.MergeCell(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵数据"][0], sxTmp.SheetList[1].Title["地泵数据"][1]); err != nil {
 		fmt.Println(err)
 		return
@@ -370,7 +370,7 @@ func SxMakeSumExcelFile(year, mon int) (sxSumExcelFile *excelize.File, err error
 		}
 	}
 
-	// 设置二级标题
+	// 设置"tmpSheet"二级标题
 	for key, value := range sxTmp.SheetList[1].Title {
 		// 设置"日期"列宽
 		if err = sxSumExcelFile.SetColWidth(sxTmp.SheetList[1].SheetName, "A", "A", 12); err != nil {
@@ -379,7 +379,7 @@ func SxMakeSumExcelFile(year, mon int) (sxSumExcelFile *excelize.File, err error
 		}
 
 		if key != "地泵数据" && key != "录像数据" {
-			if err = sxSumExcelFile.SetCellValue(sxTmp.SheetList[1].SheetName, value[1], value[0]); err != nil {
+			if err = sxSumExcelFile.SetCellValue(sxTmp.SheetList[1].SheetName, value[1]+value[2], value[0]); err != nil {
 				fmt.Println(err)
 				return
 			} else {
@@ -388,11 +388,277 @@ func SxMakeSumExcelFile(year, mon int) (sxSumExcelFile *excelize.File, err error
 					fmt.Println(err)
 					return
 				}
-				sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, value[1], value[1], style)
+				sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, value[1]+value[2], value[1]+value[2], style)
 			}
 		}
 	}
 
+	// 设置"tmpSheet"内容行
+
+	for i := 1; i <= monDays; i++ {
+		sxTmp.SheetList[1].ContentVariable["day"] = sxTmp.SheetList[1].ContentVariable["dayInit"] + fmt.Sprintf("%02d", i)
+
+		// 日期列
+		sxTmp.SheetList[1].ContentFixed["日期"] = sxTmp.SheetList[1].ContentVariable["day"]
+		if err = sxSumExcelFile.SetCellValue(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["日期"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].ContentFixed["日期"]); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["日期"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].Title["日期"][1]+fmt.Sprintf("%d", i+2), style)
+		}
+		// 地泵总车数
+		sxTmp.SheetList[1].ContentFixed["地泵总车数"] = "=VALUE(MID(汇总!$B" + fmt.Sprintf("%d", i+1) + ",FIND(\"总车数：\",汇总!$B" + fmt.Sprintf("%d", i+1) + ",1)+4,FIND(\" \",汇总!$B" + fmt.Sprintf("%d", i+1) + ",FIND(\"总车数：\",汇总!$B" + fmt.Sprintf("%d", i+1) + ",1)+4)-(FIND(\"总车数：\",汇总!$B" + fmt.Sprintf("%d", i+1) + ",1)+4)))"
+		if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵总车数"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].ContentFixed["地泵总车数"]); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵总车数"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].Title["地泵总车数"][1]+fmt.Sprintf("%d", i+2), style)
+		}
+		// 地泵水渣
+		sxTmp.SheetList[1].ContentFixed["地泵水渣"] = "=VALUE(MID(汇总!$B" + fmt.Sprintf("%d", i+1) + ",FIND(\"水渣：\",汇总!$B" + fmt.Sprintf("%d", i+1) + ",1)+3,FIND(\" \",汇总!$B" + fmt.Sprintf("%d", i+1) + ",FIND(\"水渣：\",汇总!$B" + fmt.Sprintf("%d", i+1) + ",1)+3)-(FIND(\"水渣：\",汇总!$B" + fmt.Sprintf("%d", i+1) + ",1)+3)))"
+		if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵水渣"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].ContentFixed["地泵水渣"]); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵水渣"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].Title["地泵水渣"][1]+fmt.Sprintf("%d", i+2), style)
+		}
+		// 地泵矿粉
+		sxTmp.SheetList[1].ContentFixed["地泵矿粉"] = "=VALUE(MID(汇总!$B" + fmt.Sprintf("%d", i+1) + ",FIND(\"矿粉：\",汇总!$B" + fmt.Sprintf("%d", i+1) + ",1)+3,FIND(\" \",汇总!$B" + fmt.Sprintf("%d", i+1) + ",FIND(\"矿粉：\",汇总!$B" + fmt.Sprintf("%d", i+1) + ",1)+3)-(FIND(\"矿粉：\",汇总!$B" + fmt.Sprintf("%d", i+1) + ",1)+3)))"
+		if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵矿粉"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].ContentFixed["地泵矿粉"]); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵矿粉"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].Title["地泵矿粉"][1]+fmt.Sprintf("%d", i+2), style)
+		}
+		// 地泵其他
+		sxTmp.SheetList[1].ContentFixed["地泵其他"] = "=VALUE(MID(汇总!$B" + fmt.Sprintf("%d", i+1) + ",FIND(\"其他：\",汇总!$B" + fmt.Sprintf("%d", i+1) + ",1)+3,3))"
+		if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵其他"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].ContentFixed["地泵其他"]); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵其他"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].Title["地泵其他"][1]+fmt.Sprintf("%d", i+2), style)
+		}
+		// 录像总车数
+		sxTmp.SheetList[1].ContentFixed["录像总车数"] = "=VALUE(MID(汇总!$C" + fmt.Sprintf("%d", i+1) + ",FIND(\"总车数：\",汇总!$C" + fmt.Sprintf("%d", i+1) + ",1)+4,FIND(\" \",汇总!$C" + fmt.Sprintf("%d", i+1) + ",FIND(\"总车数：\",汇总!$C" + fmt.Sprintf("%d", i+1) + ",1)+4)-(FIND(\"总车数：\",汇总!$C" + fmt.Sprintf("%d", i+1) + ",1)+4)))"
+		if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像总车数"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].ContentFixed["录像总车数"]); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像总车数"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].Title["录像总车数"][1]+fmt.Sprintf("%d", i+2), style)
+		}
+		// 录像水渣
+		sxTmp.SheetList[1].ContentFixed["录像水渣"] = "=VALUE(MID(汇总!$C" + fmt.Sprintf("%d", i+1) + ",FIND(\"水渣：\",汇总!$C" + fmt.Sprintf("%d", i+1) + ",1)+3,FIND(\" \",汇总!$C" + fmt.Sprintf("%d", i+1) + ",FIND(\"水渣：\",汇总!$C" + fmt.Sprintf("%d", i+1) + ",1)+3)-(FIND(\"水渣：\",汇总!$C" + fmt.Sprintf("%d", i+1) + ",1)+3)))"
+		if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像水渣"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].ContentFixed["录像水渣"]); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像水渣"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].Title["录像水渣"][1]+fmt.Sprintf("%d", i+2), style)
+		}
+		// 录像矿粉
+		sxTmp.SheetList[1].ContentFixed["录像矿粉"] = "=VALUE(MID(汇总!$C" + fmt.Sprintf("%d", i+1) + ",FIND(\"矿粉：\",汇总!$C" + fmt.Sprintf("%d", i+1) + ",1)+3,FIND(\" \",汇总!$C" + fmt.Sprintf("%d", i+1) + ",FIND(\"矿粉：\",汇总!$C" + fmt.Sprintf("%d", i+1) + ",1)+3)-(FIND(\"矿粉：\",汇总!$C" + fmt.Sprintf("%d", i+1) + ",1)+3)))"
+		if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像矿粉"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].ContentFixed["录像矿粉"]); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像矿粉"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].Title["录像矿粉"][1]+fmt.Sprintf("%d", i+2), style)
+		}
+		// 录像其他
+		sxTmp.SheetList[1].ContentFixed["录像其他"] = "=VALUE(MID(汇总!$C" + fmt.Sprintf("%d", i+1) + ",FIND(\"其他：\",汇总!$C" + fmt.Sprintf("%d", i+1) + ",1)+3,FIND(\" \",汇总!$C" + fmt.Sprintf("%d", i+1) + ",FIND(\"其他：\",汇总!$C" + fmt.Sprintf("%d", i+1) + ",1)+3)-(FIND(\"其他：\",汇总!$C" + fmt.Sprintf("%d", i+1) + ",1)+3)))"
+		if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像其他"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].ContentFixed["录像其他"]); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像其他"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].Title["录像其他"][1]+fmt.Sprintf("%d", i+2), style)
+		}
+		// 录像异常
+		sxTmp.SheetList[1].ContentFixed["录像异常"] = "=VALUE(MID(汇总!$C" + fmt.Sprintf("%d", i+1) + ",FIND(\"异常：\",汇总!$C" + fmt.Sprintf("%d", i+1) + ",1)+3,3))"
+		if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像异常"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].ContentFixed["录像异常"]); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像异常"][1]+fmt.Sprintf("%d", i+2), sxTmp.SheetList[1].Title["录像异常"][1]+fmt.Sprintf("%d", i+2), style)
+		}
+	}
+	// 设置"tmpSheet"汇总行
+	// 汇总行"日期"
+	if err = sxSumExcelFile.SetCellValue(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["日期"][1]+fmt.Sprintf("%d", monDays+3), "汇总"); err != nil {
+		fmt.Println(err)
+		return
+	} else {
+		style, err = sxSumExcelFile.NewStyle(styleTitle)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["日期"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Title["日期"][1]+fmt.Sprintf("%d", monDays+3), style)
+	}
+	// 地泵总车数汇总
+	sxTmp.SheetList[1].Footer["地泵总车数汇总"] = "=SUM(B3:B" + fmt.Sprintf("%d", monDays+2) + ")"
+	if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵总车数"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Footer["地泵总车数汇总"]); err != nil {
+		fmt.Println(err)
+		return
+	} else {
+		style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵总车数"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Title["地泵总车数"][1]+fmt.Sprintf("%d", monDays+3), style)
+	}
+	// 地泵水渣汇总
+	sxTmp.SheetList[1].Footer["地泵水渣汇总"] = "=SUM(C3:C" + fmt.Sprintf("%d", monDays+2) + ")"
+	if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵水渣"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Footer["地泵水渣汇总"]); err != nil {
+		fmt.Println(err)
+		return
+	} else {
+		style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵水渣"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Title["地泵水渣"][1]+fmt.Sprintf("%d", monDays+3), style)
+	}
+	// 地泵矿粉汇总
+	sxTmp.SheetList[1].Footer["地泵矿粉汇总"] = "=SUM(D3:D" + fmt.Sprintf("%d", monDays+2) + ")"
+	if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵矿粉"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Footer["地泵矿粉汇总"]); err != nil {
+		fmt.Println(err)
+		return
+	} else {
+		style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵矿粉"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Title["地泵矿粉"][1]+fmt.Sprintf("%d", monDays+3), style)
+	}
+	// 地泵其他汇总
+	sxTmp.SheetList[1].Footer["地泵其他汇总"] = "=SUM(E3:E" + fmt.Sprintf("%d", monDays+2) + ")"
+	if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵其他"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Footer["地泵其他汇总"]); err != nil {
+		fmt.Println(err)
+		return
+	} else {
+		style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["地泵其他"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Title["地泵其他"][1]+fmt.Sprintf("%d", monDays+3), style)
+	}
+	// 录像总车数汇总
+	sxTmp.SheetList[1].Footer["录像总车数汇总"] = "=SUM(G3:G" + fmt.Sprintf("%d", monDays+2) + ")"
+	if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像总车数"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Footer["录像总车数汇总"]); err != nil {
+		fmt.Println(err)
+		return
+	} else {
+		style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像总车数"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Title["录像总车数"][1]+fmt.Sprintf("%d", monDays+3), style)
+	}
+	// 录像水渣汇总
+	sxTmp.SheetList[1].Footer["录像水渣汇总"] = "=SUM(H3:H" + fmt.Sprintf("%d", monDays+2) + ")"
+	if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像水渣"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Footer["录像水渣汇总"]); err != nil {
+		fmt.Println(err)
+		return
+	} else {
+		style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像水渣"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Title["录像水渣"][1]+fmt.Sprintf("%d", monDays+3), style)
+	}
+	// 录像矿粉汇总
+	sxTmp.SheetList[1].Footer["录像矿粉汇总"] = "=SUM(I3:I" + fmt.Sprintf("%d", monDays+2) + ")"
+	if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像矿粉"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Footer["录像矿粉汇总"]); err != nil {
+		fmt.Println(err)
+		return
+	} else {
+		style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像矿粉"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Title["录像矿粉"][1]+fmt.Sprintf("%d", monDays+3), style)
+	}
+	// 录像其他汇总
+	sxTmp.SheetList[1].Footer["录像其他汇总"] = "=SUM(J3:J" + fmt.Sprintf("%d", monDays+2) + ")"
+	if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像其他"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Footer["录像其他汇总"]); err != nil {
+		fmt.Println(err)
+		return
+	} else {
+		style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像其他"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Title["录像其他"][1]+fmt.Sprintf("%d", monDays+3), style)
+	}
+	// 录像异常汇总
+	sxTmp.SheetList[1].Footer["录像异常汇总"] = "=SUM(K3:K" + fmt.Sprintf("%d", monDays+2) + ")"
+	if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像异常"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Footer["录像异常汇总"]); err != nil {
+		fmt.Println(err)
+		return
+	} else {
+		style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像异常"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Title["录像异常"][1]+fmt.Sprintf("%d", monDays+3), style)
+	}
 	return
 
 }

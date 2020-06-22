@@ -12,6 +12,7 @@ var (
 		{Type: "right", Style: 1, Color: "000000"},
 	}
 	styleAlignCenter = &excelize.Alignment{Vertical: "center", Horizontal: "center"}
+	styleWrap        = &excelize.Alignment{Vertical: "center", WrapText: true}
 
 	styleDefaultFont = "微软雅黑"
 	styleTitle       = &excelize.Style{
@@ -31,6 +32,7 @@ var (
 		Border:    sytleBorderAll,
 	}
 	styleContent = &excelize.Style{
-		Border: sytleBorderAll,
+		Border:    sytleBorderAll,
+		Alignment: styleWrap,
 	}
 )

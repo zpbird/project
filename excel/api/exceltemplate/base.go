@@ -12,7 +12,7 @@ type SumExcelTmp struct {
 	SheetList []struct {
 		SheetName       string
 		Header          string
-		Title           map[string][2]string
+		Title           map[string][]string
 		ContentVariable map[string]string
 		ContentFixed    map[string]string
 		Footer          map[string]string
@@ -25,7 +25,7 @@ func NewSumExcelTmp() *SumExcelTmp {
 		SheetList: make([]struct {
 			SheetName       string
 			Header          string
-			Title           map[string][2]string
+			Title           map[string][]string
 			ContentVariable map[string]string
 			ContentFixed    map[string]string
 			Footer          map[string]string

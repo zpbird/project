@@ -29,7 +29,7 @@ func SxSumExcelTmp(year, mon int) (sx *SumExcelTmp) {
 
 	sx.SheetList[0].ContentFixed = map[string]string{
 		"日期":   sx.SheetList[0].ContentVariable["contentVar"],
-		"地泵数据": "='.." + sysSep + "data" + sysSep + strconv.Itoa(year) + sysSep + fmt.Sprintf("%02d", mon) + sysSep + "[" + sx.SheetList[0].ContentVariable["contentVar"] + ".xls]称重记录'!$C$3",
+		"地泵数据": "='.." + sysSep + "data" + sysSep + strconv.Itoa(year) + sysSep + fmt.Sprintf("%02d", mon) + sysSep + "[" + sx.SheetList[0].ContentVariable["contentVar"] + ".xls]称重记录'!$L$5",
 		"录像数据": "='.." + sysSep + "video_data" + sysSep + strconv.Itoa(year) + sysSep + fmt.Sprintf("%02d", mon) + sysSep + "[" + sx.SheetList[0].ContentVariable["contentVar"] + ".xlsx]data'!$E$11",
 		"比对结果": "",
 		"地泵明细": "=HYPERLINK(\"" + ".." + sysSep + "data" + sysSep + strconv.Itoa(year) + sysSep + fmt.Sprintf("%02d", mon) + sysSep + sx.SheetList[0].ContentVariable["contentVar"] + ".xls\",\"" + sx.SheetList[0].ContentVariable["contentVar"] + "\")",
@@ -88,6 +88,20 @@ func SxSumExcelTmp(year, mon int) (sx *SumExcelTmp) {
 		"录像异常汇总":  "=SUM(K3:K" + "varAxis" + ")",
 	}
 	// Sheet[2]：地泵汇总
+	sx.SheetList[2].SheetName = "地泵汇总"
+	sx.SheetList[2].Header = "世鑫录像与地泵数据比对" + strconv.Itoa(year) + "年" + fmt.Sprintf("%02d", mon) + "月"
+	sx.SheetList[2].Title = map[string][]string{
+		"日期":   {"日期", "A", "1"},
+		"地泵数据": {"地泵数据", "B", "1"},
+	}
+	sx.SheetList[2].ContentVariable = map[string]string{
+		"dayInit": strconv.Itoa(year) + "-" + fmt.Sprintf("%02d", mon) + "-",
+		"day":     "",
+	}
+	sx.SheetList[2].ContentFixed = map[string]string{
+		"日期":   "",
+		"地泵数据": "='.." + sysSep + "data" + sysSep + strconv.Itoa(year) + sysSep + fmt.Sprintf("%02d", mon) + sysSep + "[" + sx.SheetList[0].ContentVariable["contentVar"] + ".xls]称重记录'!$L$6",
+	}
 
 	return
 }
@@ -186,7 +200,7 @@ func SxMakeSumExcelFile(year, mon int) (sxSumExcelFile *excelize.File, err error
 		}
 
 		// 地泵数据列
-		sxTmp.SheetList[0].ContentFixed["地泵数据"] = "='.." + sysSep + "data" + sysSep + strconv.Itoa(year) + sysSep + fmt.Sprintf("%02d", mon) + sysSep + "[" + sxTmp.SheetList[0].ContentVariable["contentVar"] + ".xls]称重记录'!$C$3"
+		sxTmp.SheetList[0].ContentFixed["地泵数据"] = "='.." + sysSep + "data" + sysSep + strconv.Itoa(year) + sysSep + fmt.Sprintf("%02d", mon) + sysSep + "[" + sxTmp.SheetList[0].ContentVariable["contentVar"] + ".xls]称重记录'!$L$5"
 		if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[0].SheetName, sxTmp.SheetList[0].Title["地泵数据"][0]+fmt.Sprintf("%d", i+1), sxTmp.SheetList[0].ContentFixed["地泵数据"]); err != nil {
 			fmt.Println(err)
 			return
@@ -659,6 +673,96 @@ func SxMakeSumExcelFile(year, mon int) (sxSumExcelFile *excelize.File, err error
 		}
 		sxSumExcelFile.SetCellStyle(sxTmp.SheetList[1].SheetName, sxTmp.SheetList[1].Title["录像异常"][1]+fmt.Sprintf("%d", monDays+3), sxTmp.SheetList[1].Title["录像异常"][1]+fmt.Sprintf("%d", monDays+3), style)
 	}
+
+	//---------------------------------------------------------------------------------------------------------------------------------
+	// "地泵汇总Sheet"部分
+	// 新建"地泵汇总Sheet"
+	indexHz = sxSumExcelFile.NewSheet(sxTmp.SheetList[2].SheetName)
+	sxSumExcelFile.SetActiveSheet(indexHz)
+	// 设置页眉
+	err = sxSumExcelFile.SetHeaderFooter(sxTmp.SheetList[2].SheetName, &excelize.FormatHeaderFooter{
+		DifferentFirst: true,
+		FirstHeader:    `&C` + `&B` + `&16` + `&"微软雅黑,常规"` + sxTmp.SheetList[2].Header,
+	})
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	// 设置标题行
+	for key, value := range sxTmp.SheetList[2].Title {
+		if err = sxSumExcelFile.SetCellValue(sxTmp.SheetList[2].SheetName, value[1]+value[2], value[0]); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			style, err = sxSumExcelFile.NewStyle(styleTitle)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[2].SheetName, value[1]+value[2], value[1]+value[2], style)
+
+		}
+
+		switch key {
+		case "日期":
+			if err = sxSumExcelFile.SetColWidth(sxTmp.SheetList[2].SheetName, value[1], value[1], 16); err != nil {
+				fmt.Println(err)
+				return
+			}
+		case "地泵数据":
+			if err = sxSumExcelFile.SetColWidth(sxTmp.SheetList[2].SheetName, value[1], value[1], 120); err != nil {
+				fmt.Println(err)
+				return
+			}
+
+		}
+
+	}
+
+	// 设置内容行
+	for i := 1; i <= monDays; i++ {
+		sxTmp.SheetList[2].ContentVariable["day"] = sxTmp.SheetList[2].ContentVariable["dayInit"] + fmt.Sprintf("%02d", i)
+		// 日期列
+		sxTmp.SheetList[2].ContentFixed["日期"] = sxTmp.SheetList[2].ContentVariable["day"]
+		if err = sxSumExcelFile.SetCellValue(sxTmp.SheetList[2].SheetName, sxTmp.SheetList[2].Title["日期"][1]+fmt.Sprintf("%d", i+1), sxTmp.SheetList[2].ContentFixed["日期"]); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			style, err = sxSumExcelFile.NewStyle(styleContentAlignCenter)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[2].SheetName, sxTmp.SheetList[2].Title["日期"][1]+fmt.Sprintf("%d", i+1), sxTmp.SheetList[2].Title["日期"][1]+fmt.Sprintf("%d", i+1), style)
+		}
+
+		// 地泵数据列
+		sxTmp.SheetList[2].ContentFixed["地泵数据"] = "='.." + sysSep + "data" + sysSep + strconv.Itoa(year) + sysSep + fmt.Sprintf("%02d", mon) + sysSep + "[" + sxTmp.SheetList[2].ContentVariable["day"] + ".xls]称重记录'!$L$6"
+		if err = sxSumExcelFile.SetCellFormula(sxTmp.SheetList[2].SheetName, sxTmp.SheetList[2].Title["地泵数据"][1]+fmt.Sprintf("%d", i+1), sxTmp.SheetList[2].ContentFixed["地泵数据"]); err != nil {
+			fmt.Println(err)
+			return
+		} else {
+			style, err = sxSumExcelFile.NewStyle(styleContent)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+			sxSumExcelFile.SetCellStyle(sxTmp.SheetList[2].SheetName, sxTmp.SheetList[2].Title["地泵数据"][1]+fmt.Sprintf("%d", i+1), sxTmp.SheetList[2].Title["地泵数据"][1]+fmt.Sprintf("%d", i+1), style)
+
+		}
+	}
+
+	// 设置默认Sheet
+	sxSumExcelFile.SetActiveSheet(sxSumExcelFile.GetSheetIndex(sxTmp.SheetList[0].SheetName))
+
+	// 只读保护
+	// err = sxSumExcelFile.ProtectSheet(sxTmp.SheetList[2].SheetName, styleReadOnly)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// 	return
+	// }
+
 	return
 
 }

@@ -35,4 +35,8 @@ var (
 		Border:    sytleBorderAll,
 		Alignment: styleWrap,
 	}
+	styleReadOnly = &excelize.FormatSheetProtection{
+		Password:      "790204",
+		EditScenarios: false,
+	}
 )

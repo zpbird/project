@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"monitor/api"
+	"monitor/api/exceltemplate"
 	"os"
 	"strconv"
 
@@ -111,18 +112,26 @@ reInput: // 标签:重新输入
 		}
 	}
 
-	// 拷贝汇总文件
-	// targetSumFileName := ""
-	// for s, e := selSmon, selEmon; s <= e; s++ {
-	// 	targetSumFileName = targetSumDir + sysSep + strconv.Itoa(selYear) + sysSep + "汇总" + strconv.Itoa(selYear) + "-" + fmt.Sprintf("%02d", s) + ".xlsx"
-	// 	_, e := zdirfiles.CopyFile(templateDir+sysSep+selCompany+sysSep+"汇总模板.xlsx", targetSumFileName, false)
-	// 	fmt.Println(e)
-	// }
+	// 生成汇总文件及地泵明细样本
+	for s, e := selSmon, selEmon; s <= e; s++ {
+		// 汇总文件
+		targetSumFileName := targetSumDir + sysSep + strconv.Itoa(selYear) + sysSep + "汇总" + strconv.Itoa(selYear) + "-" + fmt.Sprintf("%02d", s) + ".xlsx"
+		switch selCompany {
+		case "世鑫":
+			sxexcel, _ := exceltemplate.SxMakeSumExcelFile(selYear, s)
+			err := sxexcel.SaveAs(targetSumFileName)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+		case "达胜":
+		case "研山":
+		case "沥石":
+		}
 
-	// sumExecl, err := excelize.OpenFile(templateDir + sysSep + selCompany + sysSep + "汇总模板.xlsx")
-	// if err != nil {
-	// 	println(err.Error())
-	// 	return
-	// }
+		// 地泵样本明细
+		zdirfiles.CopyFile(templateDir+sysSep+selCompany+sysSep+"地泵明细.xls", targetDataDir+sysSep+strconv.Itoa(selYear)+sysSep+fmt.Sprintf("%02d", s)+sysSep+"地泵明细template.xls", false)
+
+	}
 
 }

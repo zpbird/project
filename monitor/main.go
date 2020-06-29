@@ -119,11 +119,16 @@ reInput: // 标签:重新输入
 		switch selCompany {
 		case "世鑫":
 			sxexcel, _ := exceltemplate.SxMakeSumExcelFile(selYear, s)
-			err := sxexcel.SaveAs(targetSumFileName)
-			if err != nil {
-				fmt.Println(err)
-				return
+			if b, _ := zdirfiles.DirFileExist(targetSumFileName, "file"); b {
+				fmt.Println(targetSumFileName + " 已经存在")
+			} else {
+				err := sxexcel.SaveAs(targetSumFileName)
+				if err != nil {
+					fmt.Println(err)
+					return
+				}
 			}
+
 		case "达胜":
 		case "研山":
 		case "沥石":

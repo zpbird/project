@@ -17,7 +17,7 @@
 <script lang="ts">
   // tslint:enable
 
-  import { Component, Prop, Vue } from 'vue-property-decorator';
+  import { Component, Prop, Vue } from 'vue-property-decorator'
   @Component
   export default class Swiper extends Vue {
     @Prop({type: Number, default: 3000}) interval!: number

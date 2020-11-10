@@ -2,9 +2,7 @@
 <template>
   <div>
       <h2>Home</h2>
-      <swiper>
-
-      </swiper>
+      <home-swiper :banners="banners"></home-swiper>
   </div>
 </template>
 
@@ -12,11 +10,11 @@
   // tslint:enable
   import { Component, Prop, Vue, Watch } from 'vue-property-decorator'
   import { getHomeMultidata } from '../../network/home'
-  import { Swiper, SwiperItem } from '../../components/common/swiper'
+  import HomeSwiper from './childComps/HomeSwiper.vue'
   
   @Component({
     components: {
-      Swiper
+      HomeSwiper
 
     },
   })

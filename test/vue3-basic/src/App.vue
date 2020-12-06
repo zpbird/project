@@ -18,9 +18,10 @@ export default defineComponent({
       count.value++
       
     }
+    
     const double = computed(()=>{
       return count.value * 2
-      
+
     })
     return {
       count,

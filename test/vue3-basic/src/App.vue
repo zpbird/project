@@ -1,16 +1,32 @@
+
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+  <h1>{{count}}</h1>
+  <h1>{{double}}</h1>
+  <button @click="add">add</button>
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
-import HelloWorld from './components/HelloWorld.vue';
+import { defineComponent, ref, computed } from 'vue';
 
 export default defineComponent({
-  name: 'App',
-  components: {
-    HelloWorld
+    name: 'App',
+    
+  setup(){
+    const count = ref(0)
+    
+    const add = () => {
+      count.value++
+      
+    }
+    const double = computed(()=>{
+      return count.value * 2
+      
+    })
+    return {
+      count,
+      add,
+      double
+    }
   }
 });
 </script>
